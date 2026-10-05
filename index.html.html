@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRLANE GMAIL — Setor, Verifikasi, Dibayar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-brand-500 selection:text-white custom-scrollbar">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4"></div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('landing')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-500/20">
+                    F
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+                        FIRLANE <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30 font-medium">GMAIL</span>
+                    </span>
+                    <p class="text-[10px] text-slate-400 -mt-1 font-medium hidden sm:block">Setor • Verifikasi • Dibayar</p>
+                </div>
+            </div>
+
+            <!-- Guest Nav Buttons -->
+            <div id="guest-nav" class="flex items-center gap-2 sm:gap-3">
+                <button onclick="navigateTo('landing')" class="px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition">Beranda</button>
+                <button onclick="navigateTo('rules')" class="px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition hidden md:block">Syarat Setoran</button>
+                <button onclick="openModal('modal-login')" class="px-3.5 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg border border-slate-700 transition">Masuk</button>
+                <button onclick="openModal('modal-register')" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-lg shadow-md shadow-brand-600/20 transition">Daftar Penyetor</button>
+            </div>
+
+            <!-- User Auth Nav -->
+            <div id="user-nav" class="hidden flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="nav-user-name" class="text-xs font-semibold text-slate-200">User Name</p>
+                    <p id="nav-user-role" class="text-[10px] text-slate-400">Penyetor Terverifikasi</p>
+                </div>
+                <button onclick="navigateTo('dashboard')" class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-400"></i> Dashboard
+                </button>
+                <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800/80 rounded-lg transition" title="Keluar">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- LANDING PAGE VIEW -->
+        <section id="view-landing" class="space-y-12 py-4">
+            <!-- Hero Section -->
+            <div class="text-center space-y-6 max-w-3xl mx-auto pt-6 pb-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Platform Penampung Resmi FIRLANE GMAIL
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    Setor Sekarang, Dapatkan <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-300">Rp4.000</span> untuk Setiap Unit Lolos Verifikasi
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                    FIRLANE adalah penampung & pembeli data/unit Gmail. Kami bukan marketplace akun. Proses transparan, verifikasi cepat, dan pembayaran otomatis langsung ke rekening/e-wallet Anda.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+                    <button onclick="handleStartSetor()" class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-brand-600/30 flex items-center gap-2 transition transform active:scale-95">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Setor Unit Sekarang
+                    </button>
+                    <button onclick="scrollToSection('syarat-section')" class="px-6 py-3 text-sm font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 rounded-xl border border-slate-700 transition">
+                        Lihat Syarat Setoran
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Highlight -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 rounded-2xl text-center space-y-1">
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white">Rp4.000</p>
+                    <p class="text-xs text-slate-400 font-medium">Rate Fixed / Unit Lolos</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center space-y-1">
+                    <p class="text-2xl sm:text-3xl font-extrabold text-emerald-400">100%</p>
+                    <p class="text-xs text-slate-400 font-medium">Tanpa Simpan Password Gmail</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center space-y-1">
+                    <p class="text-2xl sm:text-3xl font-extrabold text-brand-400">24 Jam</p>
+                    <p class="text-xs text-slate-400 font-medium">Maksimal Proses Verifikasi</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center space-y-1">
+                    <p class="text-2xl sm:text-3xl font-extrabold text-indigo-400">Instant</p>
+                    <p class="text-xs text-slate-400 font-medium">Withdrawal DANA/Bank</p>
+                </div>
+            </div>
+
+            <!-- Process Flow -->
+            <div class="space-y-6">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-white">Alur Sederhana Penyetoran</h2>
+                    <p class="text-xs text-slate-400">4 Langkah Mudah Menghasilkan dari Unit Gmail Anda</p>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">1</div>
+                        <h3 class="font-bold text-slate-200">1. Daftar / Login</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">Buat akun penyetor di platform FIRLANE GMAIL hanya dalam 1 menit.</p>
+                    </div>
+                    <div class="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">2</div>
+                        <h3 class="font-bold text-slate-200">2. Input Data Setoran</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">Masukkan daftar email & detail sesuai kriteria tanpa memberikan password Gmail.</p>
+                    </div>
+                    <div class="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">3</div>
+                        <h3 class="font-bold text-slate-200">3. Tim Verifikasi Cek</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">Sistem & tim memeriksa kecocokan syarat unit secara transparan.</p>
+                    </div>
+                    <div class="glass-panel p-5 rounded-2xl space-y-3 relative overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">4</div>
+                        <h3 class="font-bold text-slate-200">4. Pembayaran Cair</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">Setiap unit lolos menambah saldo (Rp4.000/unit) & siap dicairkan ke e-wallet/bank.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Syarat Unit Penyetor -->
+            <div id="syarat-section" class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 border border-brand-500/20">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-brand-400"></i> Syarat & Ketentuan Unit Penyetor
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Pastikan unit yang Anda daftarkan memenuhi standar ketat di bawah ini</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full w-fit">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Rate: Rp4.000 / Unit Lolos
+                    </span>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex items-center gap-2 font-semibold text-slate-200">
+                            <i data-lucide="key-round" class="w-4 h-4 text-indigo-400"></i> 1. PassKetentuan Internal
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Password akun Gmail yang disetorkan wajib dibuat memenuhi pola standar penyetoran internal: <code class="px-1.5 py-0.5 rounded bg-slate-800 text-brand-300 font-mono font-bold">sgsg1122</code>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex items-center gap-2 font-semibold text-slate-200">
+                            <i data-lucide="user-x" class="w-4 h-4 text-indigo-400"></i> 2. Gender Akun
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Pengaturan Gender pada profil Gmail wajib diset ke: <strong class="text-slate-200">"Tidak ingin memberi tahu"</strong>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex items-center gap-2 font-semibold text-slate-200">
+                            <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i> 3. Tahun Lahir Valid
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Tahun lahir akun yang terdaftar hanya diperbolehkan rentang antara <strong class="text-slate-200">1990 hingga 2000</strong>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex items-center gap-2 font-semibold text-slate-200">
+                            <i data-lucide="at-sign" class="w-4 h-4 text-indigo-400"></i> 4. Format Alamat Email
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Alamat Gmail maksimal hanya boleh mengandung <strong class="text-slate-200">1–3 digit angka</strong> (contoh: <span class="text-emerald-400">budi123@gmail.com</span> valid; <span class="text-red-400">budi1234@gmail.com</span> ditolak).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Strict Security Warning Box -->
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 sm:p-5 flex gap-3 text-amber-200 text-xs sm:text-sm">
+                    <i data-lucide="shield-alert" class="w-6 h-6 text-amber-400 flex-shrink-0 mt-0.5"></i>
+                    <div class="space-y-1">
+                        <p class="font-bold text-amber-300">Catatan Keamanan Penting!</p>
+                        <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+                            <li><code class="text-amber-300">sgsg1122</code> hanya ditampilkan sebagai panduan/ketentuan penyetor. Website FIRLANE <strong>TIDAK PERNAH</strong> meminta, menyimpan, atau memproses password Gmail Anda.</li>
+                            <li>Sistem ini <strong>TIDAK AKAN</strong> meminta OTP, Recovery Code, Cookie, Session Token, atau Kredensial Google apapun.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD PENYETOR VIEW -->
+        <section id="view-dashboard" class="hidden space-y-6">
+            <!-- Header Dashboard -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Dashboard Penyetor</h1>
+                    <p class="text-xs text-slate-400">Kelola setoran unit Gmail dan pantau pencairan saldo Anda</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openModal('modal-withdrawal')" class="px-4 py-2 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i> Tarik Saldo
+                    </button>
+                    <button onclick="openModal('modal-setor')" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-xl shadow-md shadow-brand-600/20 transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> SETOR SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-emerald-500 space-y-1">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Saldo Tersedia</p>
+                    <p id="dash-saldo-tersedia" class="text-lg sm:text-2xl font-extrabold text-emerald-400">Rp0</p>
+                    <p class="text-[10px] text-slate-500">Siap dicairkan</p>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-amber-500 space-y-1">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Saldo Pending</p>
+                    <p id="dash-saldo-pending" class="text-lg sm:text-2xl font-extrabold text-amber-400">Rp0</p>
+                    <p class="text-[10px] text-slate-500">Dalam verifikasi</p>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-brand-500 space-y-1">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Lolos</p>
+                    <p id="dash-unit-diterima" class="text-lg sm:text-2xl font-extrabold text-brand-400">0 Unit</p>
+                    <p class="text-[10px] text-slate-500">Telah diverifikasi</p>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-indigo-500 space-y-1">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Pendapatan</p>
+                    <p id="dash-total-pendapatan" class="text-lg sm:text-2xl font-extrabold text-indigo-300">Rp0</p>
+                    <p class="text-[10px] text-slate-500">Akumulasi hasil</p>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-purple-500 space-y-1 col-span-2 md:col-span-1">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Withdrawal</p>
+                    <p id="dash-total-withdrawal" class="text-lg sm:text-2xl font-extrabold text-purple-400">Rp0</p>
+                    <p class="text-[10px] text-slate-500">Telah ditarik</p>
+                </div>
+            </div>
+
+            <!-- Tabbed Sections: Setoran vs Withdrawal History -->
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="flex border-b border-slate-800 bg-slate-900/60 px-4 pt-3 gap-4">
+                    <button id="tab-btn-setoran" onclick="switchDashTab('setoran')" class="pb-3 text-xs sm:text-sm font-semibold text-brand-400 border-b-2 border-brand-500 flex items-center gap-2">
+                        <i data-lucide="inbox" class="w-4 h-4"></i> Riwayat Setoran
+                    </button>
+                    <button id="tab-btn-withdrawal" onclick="switchDashTab('withdrawal')" class="pb-3 text-xs sm:text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-2">
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i> Riwayat Penarikan Saldo
+                    </button>
+                </div>
+
+                <!-- Setoran Table Tab -->
+                <div id="tab-content-setoran" class="p-4 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th class="pb-3 px-2">ID Batch</th>
+                                <th class="pb-3 px-2">Tanggal</th>
+                                <th class="pb-3 px-2">Total Unit</th>
+                                <th class="pb-3 px-2">Unit Lolos</th>
+                                <th class="pb-3 px-2">Estimasi / Potensial</th>
+                                <th class="pb-3 px-2">Status</th>
+                                <th class="pb-3 px-2 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-deposits-tbody" class="text-xs divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Withdrawal Table Tab -->
+                <div id="tab-content-withdrawal" class="hidden p-4 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th class="pb-3 px-2">ID Transaksi</th>
+                                <th class="pb-3 px-2">Tanggal</th>
+                                <th class="pb-3 px-2">Metode</th>
+                                <th class="pb-3 px-2">Tujuan / Rekening</th>
+                                <th class="pb-3 px-2">Jumlah</th>
+                                <th class="pb-3 px-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-withdrawals-tbody" class="text-xs divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN DASHBOARD VIEW -->
+        <section id="view-admin" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-red-950/20 border border-red-500/30 p-4 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-red-500/20 text-red-400">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                            Admin Control Dashboard
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 font-mono">SUPERADMIN</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">Otoritas penuh verifikasi setoran, pencairan dana, dan pengelolaan platform</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openChangeRateModal()" class="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                        <i data-lucide="percent" class="w-3.5 h-3.5 text-amber-400"></i> Rate: <span id="admin-rate-text">Rp4.000</span>
+                    </button>
+                    <button onclick="logout()" class="px-3 py-1.5 text-xs font-semibold text-red-300 bg-red-900/40 hover:bg-red-900/60 rounded-lg border border-red-800 transition">
+                        Keluar Admin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Stat Overview Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="glass-panel p-4 rounded-xl space-y-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Total Penyetor</p>
+                    <p id="adm-total-users" class="text-xl font-extrabold text-white">0</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Unit Masuk</p>
+                    <p id="adm-total-units" class="text-xl font-extrabold text-brand-400">0</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Unit Lolos</p>
+                    <p id="adm-approved-units" class="text-xl font-extrabold text-emerald-400">0</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Total Pembayaran</p>
+                    <p id="adm-total-payout" class="text-xl font-extrabold text-indigo-300">Rp0</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl space-y-1 col-span-2 md:col-span-1">
+                    <p class="text-[10px] uppercase font-bold text-slate-400">Penarikan Pending</p>
+                    <p id="adm-pending-wd" class="text-xl font-extrabold text-amber-400">0 Req</p>
+                </div>
+            </div>
+
+            <!-- Admin Navigation Sub-tabs -->
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="flex border-b border-slate-800 bg-slate-900/60 px-4 pt-3 gap-4 overflow-x-auto">
+                    <button id="adm-tab-btn-setoran" onclick="switchAdminTab('setoran')" class="pb-3 text-xs font-semibold text-brand-400 border-b-2 border-brand-500 flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="check-square" class="w-4 h-4"></i> Verifikasi Setoran
+                    </button>
+                    <button id="adm-tab-btn-wd" onclick="switchAdminTab('wd')" class="pb-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i> Kelola Withdrawal
+                    </button>
+                    <button id="adm-tab-btn-users" onclick="switchAdminTab('users')" class="pb-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="users" class="w-4 h-4"></i> Daftar Penyetor
+                    </button>
+                    <button id="adm-tab-btn-logs" onclick="switchAdminTab('logs')" class="pb-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+                        <i data-lucide="list-tree" class="w-4 h-4"></i> Audit Log
+                    </button>
+                </div>
+
+                <!-- Admin Tab Content 1: Setoran Verification -->
+                <div id="adm-tab-content-setoran" class="p-4 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th class="pb-3 px-2">Batch ID</th>
+                                <th class="pb-3 px-2">Penyetor</th>
+                                <th class="pb-3 px-2">Tgl Masuk</th>
+                                <th class="pb-3 px-2">Unit</th>
+                                <th class="pb-3 px-2">Lolos</th>
+                                <th class="pb-3 px-2">Status</th>
+                                <th class="pb-3 px-2 text-right">Aksi Verifikasi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-setoran-tbody" class="text-xs divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Admin Tab Content 2: Withdrawal Requests -->
+                <div id="adm-tab-content-wd" class="hidden p-4 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th class="pb-3 px-2">TX ID</th>
+                                <th class="pb-3 px-2">Penyetor</th>
+                                <th class="pb-3 px-2">Metode / Bank</th>
+                                <th class="pb-3 px-2">No Rek / E-Wallet</th>
+                                <th class="pb-3 px-2">Nama Pemilik</th>
+                                <th class="pb-3 px-2">Jumlah</th>
+                                <th class="pb-3 px-2">Status</th>
+                                <th class="pb-3 px-2 text-right">Aksi Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-wd-tbody" class="text-xs divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Admin Tab Content 3: Users List -->
+                <div id="adm-tab-content-users" class="hidden p-4 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                <th class="pb-3 px-2">Nama Penyetor</th>
+                                <th class="pb-3 px-2">Email</th>
+                                <th class="pb-3 px-2">No HP</th>
+                                <th class="pb-3 px-2">Total Setor</th>
+                                <th class="pb-3 px-2">Total Lolos</th>
+                                <th class="pb-3 px-2">Saldo Tersedia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-users-tbody" class="text-xs divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Admin Tab Content 4: System Audit Logs -->
+                <div id="adm-tab-content-logs" class="hidden p-4">
+                    <div id="adm-audit-logs" class="space-y-2 font-mono text-xs max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER SECTION -->
+    <footer class="mt-auto border-t border-slate-800/80 bg-slate-900/50 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div>
+                <p class="font-semibold text-slate-300">© 2026 FIRLANE GMAIL. All rights reserved.</p>
+                <p class="text-[10px] text-slate-500">Platform Penampung Resmi Unit Gmail — Setor • Verifikasi • Dibayar</p>
+            </div>
+            <div class="flex items-center gap-4 flex-wrap">
+                <a href="javascript:void(0)" onclick="openModal('modal-terms')" class="hover:text-slate-200 transition">Terms & Conditions</a>
+                <a href="javascript:void(0)" onclick="openModal('modal-terms')" class="hover:text-slate-200 transition">Privacy Policy</a>
+                <a href="javascript:void(0)" onclick="alert('Layanan Support FIRLANE Telegram: @firlane_support')" class="hover:text-slate-200 transition">Support</a>
+                <!-- Admin Control Secret Link in Footer -->
+                <button onclick="openModal('modal-admin-login')" class="text-slate-600 hover:text-slate-300 font-medium border-l border-slate-800 pl-4 text-[11px] transition">
+                    Admin Control
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DIALOGS -->
+
+    <!-- Modal 1: Login Penyetor -->
+    <div id="modal-login" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-lg">Masuk Akun Penyetor</h3>
+                <button onclick="closeModal('modal-login')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleLoginUser(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email</label>
+                    <input type="email" id="login-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password FIRLANE</label>
+                    <input type="password" id="login-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-lg shadow-md transition">Masuk ke Dashboard</button>
+            </form>
+            <p class="text-center text-xs text-slate-400">Belum punya akun? <a href="javascript:void(0)" onclick="closeModal('modal-login'); openModal('modal-register');" class="text-brand-400 font-semibold hover:underline">Daftar sekarang</a></p>
+        </div>
+    </div>
+
+    <!-- Modal 2: Register Penyetor -->
+    <div id="modal-register" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-lg">Registrasi Penyetor Baru</h3>
+                <button onclick="closeModal('modal-register')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleRegisterUser(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap</label>
+                    <input type="text" id="reg-fullname" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Budi Santoso">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor HP / WhatsApp</label>
+                    <input type="tel" id="reg-phone" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="081234567890">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email Penyetor</label>
+                    <input type="email" id="reg-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password FIRLANE</label>
+                    <input type="password" id="reg-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Minimal 6 karakter">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Konfirmasi Password</label>
+                    <input type="password" id="reg-confirm-password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Ulangi password">
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="reg-terms" required class="rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-0">
+                    <label for="reg-terms" class="text-[11px] text-slate-300">Saya menyetujui <a href="javascript:void(0)" onclick="openModal('modal-terms')" class="text-brand-400 hover:underline">Terms & Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="w-full py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-lg shadow-md transition">Buat Akun Penyetor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Form Setor Unit Gmail (STRICT NO PASSWORD GMAIL) -->
+    <div id="modal-setor" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+        <div class="glass-panel w-full max-w-xl rounded-2xl p-6 space-y-4 border border-slate-800 my-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-brand-400"></i> Form Setor Unit Gmail
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Tarif saat ini: <strong class="text-emerald-400">Rp4.000 / Unit Lolos Verifikasi</strong></p>
+                </div>
+                <button onclick="closeModal('modal-setor')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- Reminder Header -->
+            <div class="bg-brand-500/10 border border-brand-500/20 rounded-xl p-3 text-xs text-slate-300 flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-4 h-4 text-brand-400 flex-shrink-0"></i>
+                <span>Aman: Form ini <strong>TIDAK MEMINTA PASSWORD GMAIL</strong> atau kredensial sensitif.</span>
+            </div>
+
+            <form onsubmit="handleSetorSubmit(event)" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-300">
+                        Daftar Alamat Gmail & Detail Unit (1 Unit per Baris):
+                    </label>
+                    <p class="text-[11px] text-slate-400">Format per baris: <code class="text-brand-300">email@gmail.com, TahunLahir, Gender</code></p>
+                    <p class="text-[10px] text-slate-500 italic">Aturan: Gender wajib "Tidak ingin memberi tahu" & Tahun lahir 1990-2000. Angka email max 3 digit.</p>
+
+                    <textarea id="setor-data-input" rows="6" required oninput="calculateSetorEstimate()" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono text-white focus:outline-none focus:border-brand-500" 
+                        placeholder="contoh12@gmail.com, 1995, Tidak ingin memberi tahu
+budi88@gmail.com, 1998, Tidak ingin memberi tahu"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Tambahan (Opsional)</label>
+                    <input type="text" id="setor-notes" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Keterangan singkat jika ada">
+                </div>
+
+                <!-- Estimasi Calculation Box -->
+                <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                    <div>
+                        <p class="text-slate-400">Estimasi Total Unit Terdeteksi:</p>
+                        <p id="est-unit-count" class="font-bold text-slate-200">0 Unit</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-slate-400">Potensi Pendapatan Maksimal:</p>
+                        <p id="est-total-pay" class="font-bold text-emerald-400 text-base">Rp0</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-setor')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Batal</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-lg shadow-md transition flex items-center gap-1.5">
+                        <i data-lucide="send" class="w-4 h-4"></i> Kirim Setoran Unit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: Withdrawal (Penarikan Saldo) -->
+    <div id="modal-withdrawal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                    <i data-lucide="wallet" class="w-5 h-5 text-emerald-400"></i> Penarikan Saldo
+                </h3>
+                <button onclick="closeModal('modal-withdrawal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                <span class="text-slate-400">Saldo Tersedia Pencairan:</span>
+                <span id="wd-available-saldo" class="font-bold text-emerald-400 text-sm">Rp0</span>
+            </div>
+
+            <form onsubmit="handleWithdrawalSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Metode Pembayaran</label>
+                    <select id="wd-method" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                        <option value="DANA">DANA</option>
+                        <option value="GoPay">GoPay</option>
+                        <option value="OVO">OVO</option>
+                        <option value="ShopeePay">ShopeePay</option>
+                        <option value="BCA">Bank BCA</option>
+                        <option value="BNI">Bank BNI</option>
+                        <option value="BRI">Bank BRI</option>
+                        <option value="Mandiri">Bank Mandiri</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Pemilik Rekening / E-Wallet</label>
+                    <input type="text" id="wd-account-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Sesuai nama terdaftar">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Rekening / Nomor E-Wallet</label>
+                    <input type="text" id="wd-account-number" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="0812xxxx / 12345xxxx">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Jumlah Penarikan (Rp)</label>
+                    <input type="number" id="wd-amount" min="10000" step="1000" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500" placeholder="Minimal Rp10.000">
+                </div>
+                <button type="submit" class="w-full py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-md transition">
+                    Proses Penarikan Dana
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: Login Admin Modal -->
+    <div id="modal-admin-login" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-sm rounded-2xl p-6 space-y-4 border border-red-500/30">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-md flex items-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4 text-red-400"></i> Admin Control Login
+                </h3>
+                <button onclick="closeModal('modal-admin-login')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Username Admin</label>
+                    <input type="text" id="admin-user" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500" placeholder="admin">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Password Admin</label>
+                    <input type="password" id="admin-pass" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-500 rounded-lg shadow-md transition">Otorisasi Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 6: Admin Setoran Action Detail Modal -->
+    <div id="modal-admin-verify" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm overflow-y-auto">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-800 my-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="font-bold text-white text-lg" id="adm-verify-title">Verifikasi Setoran Batch</h3>
+                    <p class="text-xs text-slate-400" id="adm-verify-sub">Penyetor: -</p>
+                </div>
+                <button onclick="closeModal('modal-admin-verify')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-xs font-semibold text-slate-300">Daftar Unit dalam Batch Ini:</p>
+                <div class="max-h-60 overflow-y-auto border border-slate-800 rounded-xl bg-slate-900/80 p-3 space-y-2 custom-scrollbar" id="adm-unit-items-container">
+                    <!-- Unit items rendered here -->
+                </div>
+
+                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400">Total Unit Lolos Dikonfirmasi: <strong id="adm-count-lolos" class="text-emerald-400">0</strong> / <span id="adm-count-total">0</span></p>
+                        <p class="text-xs text-slate-400">Total Pembayaran Cair: <strong id="adm-total-payout-calc" class="text-brand-300">Rp0</strong></p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="saveAdminVerification()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition">Simpan Verifikasi & Cairkan Saldo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 7: Terms & Conditions -->
+    <div id="modal-terms" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-slate-800 max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-lg">Terms & Privacy Policy</h3>
+                <button onclick="closeModal('modal-terms')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+                <p>1. FIRLANE GMAIL beroperasi secara eksklusif sebagai pihak pembeli/penampung unit data yang memenuhi kriteria internal.</p>
+                <p>2. Pengguna/Penyetor bertanggung jawab penuh atas keabsahan data unit Gmail yang disetorkan.</p>
+                <p>3. Website FIRLANE tidak memproses, meminta, atau menyimpan password akun Gmail, OTP, maupun cookie Google.</p>
+                <p>4. Pembayaran sebesar Rp4.000 hanya diberikan untuk unit yang berhasil dinyatakan LULUS dalam proses verifikasi tim admin.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Default Rate Constant
+        let CURRENT_RATE = 4000;
+        let activeAdminBatchId = null;
+
+        // Initialize Local Storage Mock Data
+        function initStorage() {
+            if (!localStorage.getItem('firlane_users')) {
+                const dummyUsers = [
+                    { id: 'usr_1', fullname: 'Budi Penyetor', email: 'budi@gmail.com', phone: '08123456789', password: 'password123', createdAt: new Date().toISOString() }
+                ];
+                localStorage.setItem('firlane_users', JSON.stringify(dummyUsers));
+            }
+
+            if (!localStorage.getItem('firlane_deposits')) {
+                const dummyDeposits = [
+                    {
+                        id: 'DEP-8812',
+                        userId: 'usr_1',
+                        userName: 'Budi Penyetor',
+                        createdAt: new Date().toISOString(),
+                        status: 'Diterima',
+                        notes: 'Setoran perdana 10 unit',
+                        items: [
+                            { email: 'user01@gmail.com', birthYear: '1995', gender: 'Tidak ingin memberi tahu', status: 'LULUS' },
+                            { email: 'user02@gmail.com', birthYear: '1996', gender: 'Tidak ingin memberi tahu', status: 'LULUS' },
+                            { email: 'user03@gmail.com', birthYear: '1992', gender: 'Tidak ingin memberi tahu', status: 'LULUS' },
+                            { email: 'user04@gmail.com', birthYear: '1999', gender: 'Tidak ingin memberi tahu', status: 'DITOLAK', rejectReason: 'Format email berangka berlebih' }
+                        ],
+                        totalUnits: 4,
+                        passedUnits: 3,
+                        ratePerUnit: 4000,
+                        totalPayout: 12000
+                    }
+                ];
+                localStorage.setItem('firlane_deposits', JSON.stringify(dummyDeposits));
+            }
+
+            if (!localStorage.getItem('firlane_withdrawals')) {
+                const dummyWd = [
+                    {
+                        id: 'WD-3391',
+                        userId: 'usr_1',
+                        userName: 'Budi Penyetor',
+                        createdAt: new Date().toISOString(),
+                        method: 'DANA',
+                        accountName: 'Budi Penyetor',
+                        accountNumber: '08123456789',
+                        amount: 10000,
+                        status: 'Success'
+                    }
+                ];
+                localStorage.setItem('firlane_withdrawals', JSON.stringify(dummyWd));
+            }
+
+            if (!localStorage.getItem('firlane_audit_logs')) {
+                const dummyLogs = [
+                    { time: new Date().toISOString(), text: 'Sistem FIRLANE GMAIL diinisialisasi.' }
+                ];
+                localStorage.setItem('firlane_audit_logs', JSON.stringify(dummyLogs));
+            }
+        }
+
+        // Global State Accessors
+        function getUsers() { return JSON.parse(localStorage.getItem('firlane_users') || '[]'); }
+        function setUsers(data) { localStorage.setItem('firlane_users', JSON.stringify(data)); }
+
+        function getDeposits() { return JSON.parse(localStorage.getItem('firlane_deposits') || '[]'); }
+        function setDeposits(data) { localStorage.setItem('firlane_deposits', JSON.stringify(data)); }
+
+        function getWithdrawals() { return JSON.parse(localStorage.getItem('firlane_withdrawals') || '[]'); }
+        function setWithdrawals(data) { localStorage.setItem('firlane_withdrawals', JSON.stringify(data)); }
+
+        function addAuditLog(text) {
+            const logs = JSON.parse(localStorage.getItem('firlane_audit_logs') || '[]');
+            logs.unshift({ time: new Date().toISOString(), text });
+            localStorage.setItem('firlane_audit_logs', JSON.stringify(logs));
+        }
+
+        function getCurrentSession() {
+            return JSON.parse(sessionStorage.getItem('firlane_session') || 'null');
+        }
+
+        // Navigation Controller
+        function navigateTo(viewName) {
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+
+            const session = getCurrentSession();
+
+            if (viewName === 'dashboard') {
+                if (!session) {
+                    showToast('Silakan login terlebih dahulu', 'error');
+                    openModal('modal-login');
+                    document.getElementById('view-landing').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                renderDashboard();
+            } else if (viewName === 'admin') {
+                if (!session || session.role !== 'admin') {
+                    showToast('Akses khusus Admin', 'error');
+                    openModal('modal-admin-login');
+                    document.getElementById('view-landing').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('view-admin').classList.remove('hidden');
+                renderAdminDashboard();
+            } else {
+                document.getElementById('view-landing').classList.remove('hidden');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            toast.className = `p-3 rounded-xl shadow-xl text-xs font-semibold text-white flex items-center justify-between border pointer-events-auto transition-all transform translate-y-2 opacity-0 ${
+                isSuccess ? 'bg-slate-900 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-red-500/50 text-red-300'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="${isSuccess ? 'check-circle' : 'alert-circle'}" class="w-4 h-4"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // User Auth Handlers
+        function handleRegisterUser(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('reg-fullname').value;
+            const phone = document.getElementById('reg-phone').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPass = document.getElementById('reg-confirm-password').value;
+
+            if (password !== confirmPass) {
+                showToast('Konfirmasi password tidak cocok!', 'error');
+                return;
+            }
+
+            const users = getUsers();
+            if (users.find(u => u.email === email)) {
+                showToast('Email sudah terdaftar!', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: 'usr_' + Date.now(),
+                fullname,
+                phone,
+                email,
+                password,
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            setUsers(users);
+            addAuditLog(`Registrasi penyetor baru: ${fullname} (${email})`);
+
+            // Auto Session
+            sessionStorage.setItem('firlane_session', JSON.stringify({ ...newUser, role: 'user' }));
+            updateNavState();
+            closeModal('modal-register');
+            showToast('Registrasi berhasil! Selamat datang di FIRLANE GMAIL.');
+            navigateTo('dashboard');
+        }
+
+        function handleLoginUser(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const users = getUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                showToast('Email atau password salah!', 'error');
+                return;
+            }
+
+            sessionStorage.setItem('firlane_session', JSON.stringify({ ...user, role: 'user' }));
+            updateNavState();
+            closeModal('modal-login');
+            showToast('Berhasil masuk.');
+            navigateTo('dashboard');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            // Strict credentials matching prompt requirement
+            if (user === 'admin' && pass === 'Kkp4615E') {
+                sessionStorage.setItem('firlane_session', JSON.stringify({
+                    id: 'admin_1',
+                    fullname: 'Super Admin FIRLANE',
+                    role: 'admin'
+                }));
+                updateNavState();
+                closeModal('modal-admin-login');
+                showToast('Autentikasi Admin berhasil.');
+                addAuditLog('Admin Control berhasil login.');
+                navigateTo('admin');
+            } else {
+                showToast('Kredensial Admin tidak valid!', 'error');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('firlane_session');
+            updateNavState();
+            showToast('Telah keluar akun.');
+            navigateTo('landing');
+        }
+
+        function updateNavState() {
+            const session = getCurrentSession();
+            const guestNav = document.getElementById('guest-nav');
+            const userNav = document.getElementById('user-nav');
+
+            if (session) {
+                guestNav.classList.add('hidden');
+                userNav.classList.remove('hidden');
+                document.getElementById('nav-user-name').innerText = session.fullname;
+                document.getElementById('nav-user-role').innerText = session.role === 'admin' ? 'Administrator' : 'Penyetor Terverifikasi';
+            } else {
+                guestNav.classList.remove('hidden');
+                userNav.classList.add('hidden');
+            }
+        }
+
+        function handleStartSetor() {
+            const session = getCurrentSession();
+            if (!session) {
+                showToast('Silakan login terlebih dahulu untuk setor unit', 'error');
+                openModal('modal-login');
+            } else {
+                openModal('modal-setor');
+            }
+        }
+
+        // SETORAN AUTOMATED VALIDATION & CALCULATION
+        function validateGmailDigitCount(email) {
+            const username = email.split('@')[0];
+            const digits = username.match(/\d/g);
+            if (!digits) return true; // 0 digits is valid (max 1-3)
+            return digits.length <= 3;
+        }
+
+        function calculateSetorEstimate() {
+            const rawText = document.getElementById('setor-data-input').value.trim();
+            if (!rawText) {
+                document.getElementById('est-unit-count').innerText = '0 Unit';
+                document.getElementById('est-total-pay').innerText = 'Rp0';
+                return;
+            }
+
+            const lines = rawText.split('\n').filter(l => l.trim().length > 0);
+            const estUnits = lines.length;
+            const estPay = estUnits * CURRENT_RATE;
+
+            document.getElementById('est-unit-count').innerText = `${estUnits} Unit`;
+            document.getElementById('est-total-pay').innerText = `Rp${estPay.toLocaleString('id-ID')}`;
+        }
+
+        function handleSetorSubmit(e) {
+            e.preventDefault();
+            const session = getCurrentSession();
+            if (!session) return;
+
+            const rawText = document.getElementById('setor-data-input').value.trim();
+            const notes = document.getElementById('setor-notes').value.trim();
+
+            if (!rawText) {
+                showToast('Masukkan minimal 1 data unit!', 'error');
+                return;
+            }
+
+            const lines = rawText.split('\n').filter(l => l.trim().length > 0);
+            const items = [];
+            let rejectedCount = 0;
+
+            lines.forEach((line) => {
+                const parts = line.split(',').map(s => s.trim());
+                const email = parts[0] || '';
+                const birthYear = parts[1] || '';
+                const gender = parts[2] || '';
+
+                let isPassed = true;
+                let failReason = '';
+
+                // Strict Client-Side / System Automated Rules Check
+                if (!email.endsWith('@gmail.com')) {
+                    isPassed = false;
+                    failReason = 'Harus format @gmail.com';
+                } else if (!validateGmailDigitCount(email)) {
+                    isPassed = false;
+                    failReason = 'Angka email melebihi 3 digit';
+                } else if (gender !== 'Tidak ingin memberi tahu') {
+                    isPassed = false;
+                    failReason = 'Gender wajib: Tidak ingin memberi tahu';
+                } else {
+                    const yr = parseInt(birthYear);
+                    if (isNaN(yr) || yr < 1990 || yr > 2000) {
+                        isPassed = false;
+                        failReason = 'Tahun lahir harus 1990-2000';
+                    }
+                }
+
+                if (!isPassed) rejectedCount++;
+
+                items.push({
+                    email,
+                    birthYear,
+                    gender,
+                    status: isPassed ? 'PENDING' : 'DITOLAK',
+                    rejectReason: isPassed ? null : failReason
+                });
+            });
+
+            const deposits = getDeposits();
+            const batchId = 'DEP-' + Math.floor(1000 + Math.random() * 9000);
+
+            const newDeposit = {
+                id: batchId,
+                userId: session.id,
+                userName: session.fullname,
+                createdAt: new Date().toISOString(),
+                status: 'Menunggu Verifikasi',
+                notes: notes || '-',
+                items: items,
+                totalUnits: items.length,
+                passedUnits: 0,
+                ratePerUnit: CURRENT_RATE,
+                totalPayout: 0
+            };
+
+            deposits.unshift(newDeposit);
+            setDeposits(deposits);
+
+            addAuditLog(`Setoran baru ${batchId} dikirim oleh ${session.fullname} (${items.length} unit).`);
+            closeModal('modal-setor');
+            document.getElementById('setor-data-input').value = '';
+
+            showToast(`Setoran ${batchId} berhasil dikirim! (${items.length - rejectedCount} unit lolos filter awal)`);
+            renderDashboard();
+        }
+
+        // RENDER DASHBOARD USER
+        function renderDashboard() {
+            const session = getCurrentSession();
+            if (!session) return;
+
+            const deposits = getDeposits().filter(d => d.userId === session.id);
+            const withdrawals = getWithdrawals().filter(w => w.userId === session.id);
+
+            // Calculations
+            let totalPassedUnits = 0;
+            let totalEarnings = 0;
+            let pendingEarnings = 0;
+
+            deposits.forEach(d => {
+                if (d.status === 'Diterima' || d.status === 'Selesai' || d.status === 'Diterima Sebagian') {
+                    totalPassedUnits += d.passedUnits || 0;
+                    totalEarnings += d.totalPayout || 0;
+                } else if (d.status === 'Menunggu Verifikasi' || d.status === 'Sedang Diverifikasi') {
+                    pendingEarnings += (d.totalUnits * CURRENT_RATE);
+                }
+            });
+
+            let totalWithdrawn = 0;
+            withdrawals.forEach(w => {
+                if (w.status === 'Success' || w.status === 'Processing' || w.status === 'Pending') {
+                    totalWithdrawn += w.amount;
+                }
+            });
+
+            const availableSaldo = Math.max(0, totalEarnings - totalWithdrawn);
+
+            // Update Cards UI
+            document.getElementById('dash-saldo-tersedia').innerText = `Rp${availableSaldo.toLocaleString('id-ID')}`;
+            document.getElementById('dash-saldo-pending').innerText = `Rp${pendingEarnings.toLocaleString('id-ID')}`;
+            document.getElementById('dash-unit-diterima').innerText = `${totalPassedUnits} Unit`;
+            document.getElementById('dash-total-pendapatan').innerText = `Rp${totalEarnings.toLocaleString('id-ID')}`;
+            document.getElementById('dash-total-withdrawal').innerText = `Rp${totalWithdrawn.toLocaleString('id-ID')}`;
+            document.getElementById('wd-available-saldo').innerText = `Rp${availableSaldo.toLocaleString('id-ID')}`;
+
+            // Populate Deposit Table
+            const depTbody = document.getElementById('user-deposits-tbody');
+            depTbody.innerHTML = '';
+
+            if (deposits.length === 0) {
+                depTbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Belum ada riwayat setoran. Silakan klik "+ SETOR SEKARANG".</td></tr>`;
+            } else {
+                deposits.forEach(d => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-900/40 transition';
+                    tr.innerHTML = `
+                        <td class="py-3 px-2 font-mono font-bold text-brand-300">${d.id}</td>
+                        <td class="py-3 px-2 text-slate-400">${new Date(d.createdAt).toLocaleDateString('id-ID')}</td>
+                        <td class="py-3 px-2 font-medium text-slate-200">${d.totalUnits} Unit</td>
+                        <td class="py-3 px-2 font-medium text-emerald-400">${d.passedUnits || 0} Unit</td>
+                        <td class="py-3 px-2 text-slate-300">Rp${(d.totalPayout || (d.totalUnits * CURRENT_RATE)).toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-2">${getBadgeStatus(d.status)}</td>
+                        <td class="py-3 px-2 text-right">
+                            <button onclick="alert('Detail Batch ${d.id}:\\n- Total: ${d.totalUnits} unit\\n- Lolos: ${d.passedUnits || 0} unit\\n- Catatan: ${d.notes}')" class="p-1 text-slate-400 hover:text-white" title="Detail"><i data-lucide="info" class="w-4 h-4"></i></button>
+                        </td>
+                    `;
+                    depTbody.appendChild(tr);
+                });
+            }
+
+            // Populate Withdrawal Table
+            const wdTbody = document.getElementById('user-withdrawals-tbody');
+            wdTbody.innerHTML = '';
+
+            if (withdrawals.length === 0) {
+                wdTbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">Belum ada riwayat penarikan saldo.</td></tr>`;
+            } else {
+                withdrawals.forEach(w => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-900/40 transition';
+                    tr.innerHTML = `
+                        <td class="py-3 px-2 font-mono font-bold text-indigo-300">${w.id}</td>
+                        <td class="py-3 px-2 text-slate-400">${new Date(w.createdAt).toLocaleDateString('id-ID')}</td>
+                        <td class="py-3 px-2 font-medium text-slate-200">${w.method}</td>
+                        <td class="py-3 px-2 text-slate-300">${w.accountNumber} a.n ${w.accountName}</td>
+                        <td class="py-3 px-2 font-bold text-emerald-400">Rp${w.amount.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-2">${getBadgeStatus(w.status)}</td>
+                    `;
+                    wdTbody.appendChild(tr);
+                });
+            }
+
+            lucide.createIcons();
+        }
+
+        function switchDashTab(tab) {
+            document.getElementById('tab-btn-setoran').className = tab === 'setoran' 
+                ? 'pb-3 text-xs sm:text-sm font-semibold text-brand-400 border-b-2 border-brand-500 flex items-center gap-2'
+                : 'pb-3 text-xs sm:text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-2';
+            document.getElementById('tab-btn-withdrawal').className = tab === 'withdrawal' 
+                ? 'pb-3 text-xs sm:text-sm font-semibold text-brand-400 border-b-2 border-brand-500 flex items-center gap-2'
+                : 'pb-3 text-xs sm:text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-2';
+
+            document.getElementById('tab-content-setoran').classList.toggle('hidden', tab !== 'setoran');
+            document.getElementById('tab-content-withdrawal').classList.toggle('hidden', tab !== 'withdrawal');
+        }
+
+        // WITHDRAWAL PROCESS
+        function handleWithdrawalSubmit(e) {
+            e.preventDefault();
+            const session = getCurrentSession();
+            if (!session) return;
+
+            const method = document.getElementById('wd-method').value;
+            const accountName = document.getElementById('wd-account-name').value;
+            const accountNumber = document.getElementById('wd-account-number').value;
+            const amount = parseInt(document.getElementById('wd-amount').value);
+
+            // Compute Current Available
+            const deposits = getDeposits().filter(d => d.userId === session.id);
+            const withdrawals = getWithdrawals().filter(w => w.userId === session.id);
+
+            let totalEarnings = 0;
+            deposits.forEach(d => {
+                if (d.status === 'Diterima' || d.status === 'Selesai' || d.status === 'Diterima Sebagian') {
+                    totalEarnings += d.totalPayout || 0;
+                }
+            });
+
+            let totalWithdrawn = 0;
+            withdrawals.forEach(w => {
+                if (w.status === 'Success' || w.status === 'Processing' || w.status === 'Pending') {
+                    totalWithdrawn += w.amount;
+                }
+            });
+
+            const currentAvailable = Math.max(0, totalEarnings - totalWithdrawn);
+
+            if (amount < 10000) {
+                showToast('Penarikan minimal Rp10.000!', 'error');
+                return;
+            }
+
+            if (amount > currentAvailable) {
+                showToast('Saldo tersedia tidak mencukupi!', 'error');
+                return;
+            }
+
+            const newWd = {
+                id: 'WD-' + Math.floor(1000 + Math.random() * 9000),
+                userId: session.id,
+                userName: session.fullname,
+                createdAt: new Date().toISOString(),
+                method,
+                accountName,
+                accountNumber,
+                amount,
+                status: 'Pending'
+            };
+
+            withdrawals.push(newWd);
+            setWithdrawals(withdrawals);
+
+            addAuditLog(`Permintaan withdrawal ${newWd.id} diajukan oleh ${session.fullname} sebesar Rp${amount.toLocaleString('id-ID')}`);
+            closeModal('modal-withdrawal');
+            showToast('Permintaan penarikan saldo berhasil dikirim!');
+            renderDashboard();
+        }
+
+        // RENDER ADMIN CONTROL PANEL
+        function renderAdminDashboard() {
+            const deposits = getDeposits();
+            const withdrawals = getWithdrawals();
+            const users = getUsers();
+
+            // Total Calculations
+            let totalUnits = 0;
+            let approvedUnits = 0;
+            let totalPayoutSum = 0;
+
+            deposits.forEach(d => {
+                totalUnits += d.totalUnits || 0;
+                approvedUnits += d.passedUnits || 0;
+                totalPayoutSum += d.totalPayout || 0;
+            });
+
+            const pendingWdCount = withdrawals.filter(w => w.status === 'Pending').length;
+
+            document.getElementById('adm-total-users').innerText = users.length;
+            document.getElementById('adm-total-units').innerText = totalUnits;
+            document.getElementById('adm-approved-units').innerText = approvedUnits;
+            document.getElementById('adm-total-payout').innerText = `Rp${totalPayoutSum.toLocaleString('id-ID')}`;
+            document.getElementById('adm-pending-wd').innerText = `${pendingWdCount} Req`;
+
+            // Admin Deposits Table
+            const depTbody = document.getElementById('adm-setoran-tbody');
+            depTbody.innerHTML = '';
+
+            deposits.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/40 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-2 font-mono font-bold text-brand-300">${d.id}</td>
+                    <td class="py-3 px-2 font-medium text-slate-200">${d.userName}</td>
+                    <td class="py-3 px-2 text-slate-400">${new Date(d.createdAt).toLocaleDateString('id-ID')}</td>
+                    <td class="py-3 px-2 text-slate-300">${d.totalUnits} Unit</td>
+                    <td class="py-3 px-2 text-emerald-400 font-bold">${d.passedUnits || 0} Unit</td>
+                    <td class="py-3 px-2">${getBadgeStatus(d.status)}</td>
+                    <td class="py-3 px-2 text-right">
+                        <button onclick="openAdminVerifyModal('${d.id}')" class="px-2.5 py-1 text-[11px] font-semibold bg-brand-600 hover:bg-brand-500 text-white rounded transition">
+                            Proses Verifikasi
+                        </button>
+                    </td>
+                `;
+                depTbody.appendChild(tr);
+            });
+
+            // Admin Withdrawal Table
+            const wdTbody = document.getElementById('adm-wd-tbody');
+            wdTbody.innerHTML = '';
+
+            withdrawals.forEach(w => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/40 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-2 font-mono font-bold text-indigo-300">${w.id}</td>
+                    <td class="py-3 px-2 font-medium text-slate-200">${w.userName}</td>
+                    <td class="py-3 px-2 text-slate-300">${w.method}</td>
+                    <td class="py-3 px-2 font-mono text-slate-300">${w.accountNumber}</td>
+                    <td class="py-3 px-2 text-slate-300">${w.accountName}</td>
+                    <td class="py-3 px-2 font-bold text-emerald-400">Rp${w.amount.toLocaleString('id-ID')}</td>
+                    <td class="py-3 px-2">${getBadgeStatus(w.status)}</td>
+                    <td class="py-3 px-2 text-right space-x-1">
+                        ${w.status === 'Pending' ? `
+                            <button onclick="updateWdStatus('${w.id}', 'Success')" class="px-2 py-1 text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded">Setujui</button>
+                            <button onclick="updateWdStatus('${w.id}', 'Failed')" class="px-2 py-1 text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white rounded">Tolak</button>
+                        ` : `<span class="text-slate-500 text-[10px]">Selesai</span>`}
+                    </td>
+                `;
+                wdTbody.appendChild(tr);
+            });
+
+            // Admin Users List
+            const usersTbody = document.getElementById('adm-users-tbody');
+            usersTbody.innerHTML = '';
+
+            users.forEach(u => {
+                const uDeps = deposits.filter(d => d.userId === u.id);
+                const uWds = withdrawals.filter(w => w.userId === u.id);
+
+                let uTotalSetor = 0;
+                let uPassed = 0;
+                let uEarnings = 0;
+
+                uDeps.forEach(d => {
+                    uTotalSetor += d.totalUnits || 0;
+                    uPassed += d.passedUnits || 0;
+                    uEarnings += d.totalPayout || 0;
+                });
+
+                let uWithdrawn = 0;
+                uWds.forEach(w => {
+                    if (w.status === 'Success' || w.status === 'Pending') uWithdrawn += w.amount;
+                });
+
+                const uSaldo = Math.max(0, uEarnings - uWithdrawn);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/40 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-2 font-medium text-slate-200">${u.fullname}</td>
+                    <td class="py-3 px-2 text-slate-400">${u.email}</td>
+                    <td class="py-3 px-2 text-slate-400">${u.phone}</td>
+                    <td class="py-3 px-2 text-slate-300">${uTotalSetor} Unit</td>
+                    <td class="py-3 px-2 text-emerald-400 font-bold">${uPassed} Unit</td>
+                    <td class="py-3 px-2 font-bold text-brand-300">Rp${uSaldo.toLocaleString('id-ID')}</td>
+                `;
+                usersTbody.appendChild(tr);
+            });
+
+            // Audit Logs
+            const logsContainer = document.getElementById('adm-audit-logs');
+            const logs = JSON.parse(localStorage.getItem('firlane_audit_logs') || '[]');
+            logsContainer.innerHTML = logs.map(l => `
+                <div class="p-2 bg-slate-900/60 rounded border border-slate-800 text-slate-300 flex justify-between gap-2">
+                    <span>> ${l.text}</span>
+                    <span class="text-[10px] text-slate-500">${new Date(l.time).toLocaleTimeString()}</span>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Admin Verification Modal Operations
+        function openAdminVerifyModal(batchId) {
+            activeAdminBatchId = batchId;
+            const deposits = getDeposits();
+            const dep = deposits.find(d => d.id === batchId);
+            if (!dep) return;
+
+            document.getElementById('adm-verify-title').innerText = `Verifikasi Batch ${dep.id}`;
+            document.getElementById('adm-verify-sub').innerText = `Penyetor: ${dep.userName} | Total Item: ${dep.totalUnits}`;
+
+            const container = document.getElementById('adm-unit-items-container');
+            container.innerHTML = '';
+
+            dep.items.forEach((item, idx) => {
+                const isPassed = item.status === 'LULUS';
+                const div = document.createElement('div');
+                div.className = 'p-3 bg-slate-950/60 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+                div.innerHTML = `
+                    <div>
+                        <p class="font-mono text-xs text-slate-200 font-semibold">${item.email}</p>
+                        <p class="text-[10px] text-slate-400">Tahun: ${item.birthYear} | Gender: ${item.gender}</p>
+                        ${item.rejectReason ? `<p class="text-[10px] text-red-400">Alasan: ${item.rejectReason}</p>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio" name="item_status_${idx}" value="LULUS" ${isPassed ? 'checked' : ''} onchange="recalculateAdminModalPayout()" class="text-emerald-500">
+                            <span class="text-xs font-semibold text-emerald-400">LULUS</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio" name="item_status_${idx}" value="DITOLAK" ${!isPassed ? 'checked' : ''} onchange="recalculateAdminModalPayout()" class="text-red-500">
+                            <span class="text-xs font-semibold text-red-400">TOLAK</span>
+                        </label>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            recalculateAdminModalPayout();
+            openModal('modal-admin-verify');
+        }
+
+        function recalculateAdminModalPayout() {
+            const deposits = getDeposits();
+            const dep = deposits.find(d => d.id === activeAdminBatchId);
+            if (!dep) return;
+
+            let lolosCount = 0;
+            dep.items.forEach((_, idx) => {
+                const checkedVal = document.querySelector(`input[name="item_status_${idx}"]:checked`)?.value;
+                if (checkedVal === 'LULUS') lolosCount++;
+            });
+
+            const totalPayout = lolosCount * CURRENT_RATE;
+            document.getElementById('adm-count-lolos').innerText = lolosCount;
+            document.getElementById('adm-count-total').innerText = dep.totalUnits;
+            document.getElementById('adm-total-payout-calc').innerText = `Rp${totalPayout.toLocaleString('id-ID')}`;
+        }
+
+        function saveAdminVerification() {
+            const deposits = getDeposits();
+            const depIndex = deposits.findIndex(d => d.id === activeAdminBatchId);
+            if (depIndex === -1) return;
+
+            const dep = deposits[depIndex];
+            let lolosCount = 0;
+
+            dep.items.forEach((item, idx) => {
+                const checkedVal = document.querySelector(`input[name="item_status_${idx}"]:checked`)?.value;
+                if (checkedVal === 'LULUS') {
+                    item.status = 'LULUS';
+                    item.rejectReason = null;
+                    lolosCount++;
+                } else {
+                    item.status = 'DITOLAK';
+                    if (!item.rejectReason) item.rejectReason = 'Ditolak manual oleh Admin';
+                }
+            });
+
+            dep.passedUnits = lolosCount;
+            dep.totalPayout = lolosCount * CURRENT_RATE;
+
+            if (lolosCount === dep.totalUnits) {
+                dep.status = 'Diterima';
+            } else if (lolosCount > 0) {
+                dep.status = 'Diterima Sebagian';
+            } else {
+                dep.status = 'Ditolak';
+            }
+
+            deposits[depIndex] = dep;
+            setDeposits(deposits);
+
+            addAuditLog(`Verifikasi batch ${dep.id} diselesaikan Admin. (${lolosCount}/${dep.totalUnits} Lolos, Payout: Rp${dep.totalPayout})`);
+            closeModal('modal-admin-verify');
+            showToast(`Verifikasi Batch ${dep.id} berhasil disimpan!`);
+            renderAdminDashboard();
+        }
+
+        function updateWdStatus(wdId, newStatus) {
+            const wds = getWithdrawals();
+            const idx = wds.findIndex(w => w.id === wdId);
+            if (idx !== -1) {
+                wds[idx].status = newStatus;
+                setWithdrawals(wds);
+                addAuditLog(`Status withdrawal ${wdId} diubah menjadi ${newStatus}`);
+                showToast(`Withdrawal ${wdId} diupdate ke status: ${newStatus}`);
+                renderAdminDashboard();
+            }
+        }
+
+        function switchAdminTab(tab) {
+            const tabs = ['setoran', 'wd', 'users', 'logs'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`adm-tab-btn-${t}`);
+                const content = document.getElementById(`adm-tab-content-${t}`);
+                if (t === tab) {
+                    btn.className = 'pb-3 text-xs font-semibold text-brand-400 border-b-2 border-brand-500 flex items-center gap-1.5 whitespace-nowrap';
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = 'pb-3 text-xs font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center gap-1.5 whitespace-nowrap';
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function openChangeRateModal() {
+            const newRateStr = prompt('Masukkan Tarif / Rate per Unit Lolos (Rp):', CURRENT_RATE);
+            if (newRateStr) {
+                const val = parseInt(newRateStr);
+                if (!isNaN(val) && val > 0) {
+                    CURRENT_RATE = val;
+                    document.getElementById('admin-rate-text').innerText = `Rp${val.toLocaleString('id-ID')}`;
+                    addAuditLog(`Admin mengubah rate per unit menjadi Rp${val.toLocaleString('id-ID')}`);
+                    showToast(`Rate berhasil diubah menjadi Rp${val.toLocaleString('id-ID')}`);
+                }
+            }
+        }
+
+        // Helper Badge Renderer
+        function getBadgeStatus(status) {
+            switch (status) {
+                case 'Diterima':
+                case 'Success':
+                case 'Selesai':
+                    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${status}</span>`;
+                case 'Diterima Sebagian':
+                    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">${status}</span>`;
+                case 'Menunggu Verifikasi':
+                case 'Sedang Diverifikasi':
+                case 'Pending':
+                case 'Processing':
+                    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">${status}</span>`;
+                case 'Ditolak':
+                case 'Failed':
+                    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">${status}</span>`;
+                default:
+                    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300">${status}</span>`;
+            }
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Window Init Execution
+        window.onload = function () {
+            initStorage();
+            updateNavState();
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
